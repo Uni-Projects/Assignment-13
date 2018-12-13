@@ -38,16 +38,20 @@ struct Node
 
 bool open_file (fstream& file, string file_name)
 {
+    // PRE: 
+    assert(file_name.length() > 4);
+    // POST: returns true if the file with file_name is opened correctly.
    file.open(file_name.c_str());
    return file.is_open();
 }
 
 fstream& operator>> (fstream& file, Cell world[HEIGHT][WIDTH])
-{// Pre-condition:
-    assert (true) ;
-/*  Post-condition:
-    a value for length has been obtained from in: first minutes, followed by ':', followed by seconds.
-*/  char c;
+{    
+    // PRE: 
+    assert(true);
+    // POST: the world design of the text file is scanned and saved in an array,
+    // which can be used to be modified and printed.
+    char c;
 
     for (int i = 0 ; i < HEIGHT ; i++)
     {
@@ -85,12 +89,19 @@ fstream& operator>> (fstream& file, Cell world[HEIGHT][WIDTH])
     }
 
 }
+
 bool operator== (Pos p1, Pos p2)
 {
+    // PRE: 
+    assert(p1.col > 0 && p1.row > 0 && p2.col > 0 && p2.row > 0);
+    // POST: return true if the positions are equivalent.
     return (p1.col == p2.col && p1.row == p2.row) ;
 }
 bool operator== (vector<Pos> b1, vector<Pos> b2)
 {
+    // PRE: 
+    assert(true);
+    // POST: returns true if the vectors are equivalent.
     for (int i = 0 ; i < b1.size() ; i ++)
     {
         if (!(b1[i] == b2[i]) )
@@ -100,13 +111,18 @@ bool operator== (vector<Pos> b1, vector<Pos> b2)
 }
 bool operator== (State& s1, State& s2)
 {
+    // PRE: 
+    assert(true);
+    // POST: returns true if two instances of the world are the same. We only consider boxes and the worker, 
+    // becase the rest of the world remains static. This helps to avoid some unnecessary duplicate computations.
     return (s1.player == s2.player && s1.boxes == s2.boxes);
 }
 
 void show_world (Cell world[HEIGHT][WIDTH])
-{// Pre-condition:
+{
+    // PRE:
     assert (true) ;
-
+    // POST: Displays the world layout into the console.
     for (int i = 0 ; i < a_height ; i++)
     {
         for(int j = 0 ; j < a_width ; j++)
@@ -132,6 +148,9 @@ void show_world (Cell world[HEIGHT][WIDTH])
 
 State set_up (Cell w [HEIGHT][WIDTH])
 {
+    // PRE: 
+    assert(true);
+    // POST: Returns a valid state of the world.
     State config;
 
     for (int i = 0 ; i < a_height ; i++)
@@ -160,6 +179,7 @@ State set_up (Cell w [HEIGHT][WIDTH])
 /*
 void find_corners (State& start)
 {
+    Merry christmas
     for (int i = 1 ; i < a_height-1 ; i++)
     {
         for (int j = 1 ; j < a_width-1 ; j++)
@@ -179,6 +199,9 @@ void find_corners (State& start)
 */
 bool facing_box (State s, Direction d)
 {
+    // PRE: 
+    assert(static_cast<int> d >=0 && static_cast<int> d < 4);
+    // POST: returns true if player faces a box for the given direction d. False otherwise.
     switch (d)
         {
 
@@ -198,6 +221,10 @@ bool facing_box (State s, Direction d)
 }
 bool is_movable (State s, Direction d)
 {
+    // PRE: 
+    assert(static_cast<int> d >=0 && static_cast<int> d < 4);
+    // POST: returns true if, for the direction the worker intends to push the box,
+    // there is a free cell / destination cell for the box to be moved to.
     switch (d)
     {
         case north:
@@ -217,6 +244,9 @@ bool is_movable (State s, Direction d)
 
 bool is_solved (State s)
 {
+    // PRE:
+    assert(true);
+    // POST: returns true if the challenged is solved, i.e. in a solution state.
     for (int i = 0 ; i < a_height ; i++)
     {
         for(int j = 0 ; j < a_width ; j++)
@@ -230,26 +260,41 @@ bool is_solved (State s)
 
 bool can_go_north(State s)
 {
+    // PRE:
+    assert(true);
+    //POST: returns true if the player may go north, i.e. there is no object in the way.
      return (s.layout[s.player.row - 1][s.player.col] == empty || s.layout[s.player.row - 1][s.player.col] == destination);
 }
 
 bool can_go_south(State s)
 {
+    // PRE:
+    assert(true);
+    //POST: returns true if the player may go south, i.e. there is no object in the way.
     return (s.layout[s.player.row + 1][s.player.col] == empty || s.layout[s.player.row + 1][s.player.col] == destination);
 }
 
 bool can_go_east(State s)
 {
+    // PRE:
+    assert(true);
+    //POST: returns true if the player may go east, i.e. there is no object in the way.
     return (s.layout[s.player.row][s.player.col + 1] == empty || s.layout[s.player.row][s.player.col + 1] == destination);
 }
 
 bool can_go_west(State s)
 {
+    // PRE:
+    assert(true);
+    //POST: returns true if the player may go west, i.e. there is no object in the way.
     return (s.layout[s.player.row][s.player.col - 1] == empty || s.layout[s.player.row][s.player.col - 1] == destination);
 }
 
 bool new_config (vector<Node>& n, State s)
 {
+    // PRE:
+    assert(n.size() > 0);
+    // POST: checks if this scenario has been explored before. If not, true is returned.
     for(int j = 0 ; j < n.size(); j++)
     {
         if (n[j].config == s)
@@ -260,6 +305,12 @@ bool new_config (vector<Node>& n, State s)
 
 void move_player (vector<Node>& n, int i, Direction d, State s)
 {
+    // PRE: 
+    assert(static_cast<int> d >=0 && static_cast<int> d < 4);
+    assert(n.size() > 0);
+    // POST: this function handles worker movement by swapping worker position with the next cell (if legal)
+    // in the indicated direction. Also the state of the worker (on destination, not on destination) is respected.
+    // Based on this a new state is generated and saved in the vector of all possible states.
     State newState = s;
     Node newNode;
 
@@ -394,6 +445,13 @@ void move_player (vector<Node>& n, int i, Direction d, State s)
 
 void move_box (vector<Node>& n, int i, Direction d)
 {
+    // PRE:
+    assert(static_cast<int> d >=0 && static_cast<int> d < 4);
+    assert(n.size() > 0);
+    // POST: From perspective of the worker position and considering the indicated direction 
+    // it is checked wether there is a box in front of worker and that this box is allowed to be 
+    // moved in the same direction as the worker is going. If the criteria are met, the box is moved.
+    // After, the function move_player is called.
     State newState = n[i].config;
     switch (d)
      {
@@ -520,6 +578,10 @@ void move_box (vector<Node>& n, int i, Direction d)
 
 void show_path (vector <Node>& n ,int i)
 {
+    // PRE:
+    assert(n.size() > 0);
+    // POST: recursively the parents of the selected state are called within the vector and printed to the console
+    // thanks to function show_world.
     if (i >= 0)
     {
         show_world(n[i].config.layout);
@@ -531,6 +593,9 @@ void show_path (vector <Node>& n ,int i)
 
 void solve (State start)
 {
+    // PRE: 
+    assert(true);
+    // POST: Computes the optimal solution, i.e. using least number of moves, to the level in question using breadth-first search.
     vector<Node> n = {{start,-1}} ;
     int i = 0 ;
     while(i < n.size() && !is_solved(n[i].config))
@@ -577,6 +642,9 @@ void solve (State start)
 
 int main()
 {
+    // PRE: 
+    assert(true);
+    // POSt: ...
     fstream file;
     string file_name;
 
